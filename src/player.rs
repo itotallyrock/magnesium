@@ -25,6 +25,3 @@ impl Player {
         !self.is_white()
     }
 }
-
-pub const WHITE: Player = Player::White;
-pub const BLACK: Player = Player::Black;

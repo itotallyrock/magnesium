@@ -1,6 +1,6 @@
 use crate::bitboard::{Bit, Bitboard, EMPTY_BITBOARD};
 use crate::castle_direction::CastleDirection;
-use crate::player::{Player, BLACK, WHITE};
+use crate::player::Player;
 use crate::square::Square::{A1, A8, H1, H8};
 
 use core::marker::ConstParamTy;
@@ -44,25 +44,25 @@ impl BoardStatus {
         rooks: Bitboard,
     ) -> bool {
         match (CASTLE_DIRECTION, self.side_to_move) {
-            (CastleDirection::KingSide, WHITE) => {
+            (CastleDirection::KingSide, Player::White) => {
                 self.white_king_castle_rights
                     && occupied & Self::WHITE_KING_SIDE_CASTLE_EMPTY == EMPTY_BITBOARD
                     && attacked & Self::WHITE_KING_SIDE_CASTLE_UNATTACKED == EMPTY_BITBOARD
                     && rooks & Self::WHITE_KING_SIDE_ROOK != EMPTY_BITBOARD
             }
-            (CastleDirection::QueenSide, WHITE) => {
+            (CastleDirection::QueenSide, Player::White) => {
                 self.white_queen_castle_rights
                     && occupied & Self::WHITE_QUEEN_SIDE_CASTLE_EMPTY == EMPTY_BITBOARD
                     && attacked & Self::WHITE_QUEEN_SIDE_CASTLE_UNATTACKED == EMPTY_BITBOARD
                     && rooks & Self::WHITE_QUEEN_SIDE_ROOK != EMPTY_BITBOARD
             }
-            (CastleDirection::KingSide, BLACK) => {
+            (CastleDirection::KingSide, Player::Black) => {
                 self.black_king_castle_rights
                     && occupied & Self::BLACK_KING_SIDE_CASTLE_EMPTY == EMPTY_BITBOARD
                     && attacked & Self::BLACK_KING_SIDE_CASTLE_UNATTACKED == EMPTY_BITBOARD
                     && rooks & Self::BLACK_KING_SIDE_ROOK != EMPTY_BITBOARD
             }
-            (CastleDirection::QueenSide, BLACK) => {
+            (CastleDirection::QueenSide, Player::Black) => {
                 self.black_queen_castle_rights
                     && occupied & Self::BLACK_QUEEN_SIDE_CASTLE_EMPTY == EMPTY_BITBOARD
                     && attacked & Self::BLACK_QUEEN_SIDE_CASTLE_UNATTACKED == EMPTY_BITBOARD
@@ -139,11 +139,11 @@ mod test {
     use crate::bitboard::{Bitboard, EMPTY_BITBOARD};
     use crate::board_status::BoardStatus;
     use crate::castle_direction::CastleDirection;
-    use crate::player::{BLACK, WHITE};
+    use crate::player::Player;
     use test_case::test_case;
 
     const ALL_RIGHTS_WHITE_TO_MOVE: BoardStatus = BoardStatus {
-        side_to_move: WHITE,
+        side_to_move: Player::White,
         has_ep_pawn: false,
         white_king_castle_rights: true,
         white_queen_castle_rights: true,
@@ -164,7 +164,7 @@ mod test {
         ..ALL_RIGHTS_WHITE_TO_MOVE
     };
     const ALL_RIGHTS_BLACK_TO_MOVE: BoardStatus = BoardStatus {
-        side_to_move: BLACK,
+        side_to_move: Player::Black,
         ..ALL_RIGHTS_WHITE_TO_MOVE
     };
     const BLACK_MISSING_KING_BLACK_TO_MOVE: BoardStatus = BoardStatus {

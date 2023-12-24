@@ -1,6 +1,6 @@
 use crate::bitboard::{Bitboard, EMPTY_BITBOARD};
 use crate::piece_type::{NonKingPieceType, PieceType};
-use crate::player::{BLACK, Player, WHITE};
+use crate::player::Player;
 use crate::square::Square;
 
 #[derive(Clone, Eq, PartialEq, Debug)]
@@ -22,10 +22,10 @@ impl PieceArrangement {
 
     pub const fn player_on(&self, square: Square) -> Option<Player> {
         let square = square.to_bit();
-        if self.occupied_by_player[WHITE as usize] & square != EMPTY_BITBOARD {
-            Some(WHITE)
-        } else if self.occupied_by_player[BLACK as usize] & square != EMPTY_BITBOARD {
-            Some(BLACK)
+        if self.occupied_by_player[Player::White as usize] & square != EMPTY_BITBOARD {
+            Some(Player::White)
+        } else if self.occupied_by_player[Player::Black as usize] & square != EMPTY_BITBOARD {
+            Some(Player::Black)
         } else {
             None
         }
