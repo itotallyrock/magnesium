@@ -51,27 +51,17 @@ impl BoardStatus {
     }
 
     const fn king_move(self) -> Self {
+        let has_rights = {
+            let mut has_rights = self.has_rights;
+            has_rights[self.side_to_move as usize][CastleDirection::KingSide as usize] = false;
+            has_rights[self.side_to_move as usize][CastleDirection::QueenSide as usize] = false;
+
+            has_rights
+        };
         Self {
             side_to_move: self.side_to_move.switch(),
             has_ep_pawn: false,
-            has_rights: [
-                [
-                    self.side_to_move.is_black()
-                        && self.has_rights[Player::White as usize]
-                            [CastleDirection::KingSide as usize],
-                    self.side_to_move.is_white()
-                        && self.has_rights[Player::White as usize]
-                            [CastleDirection::QueenSide as usize],
-                ],
-                [
-                    self.side_to_move.is_black()
-                        && self.has_rights[Player::Black as usize]
-                            [CastleDirection::KingSide as usize],
-                    self.side_to_move.is_white()
-                        && self.has_rights[Player::Black as usize]
-                            [CastleDirection::QueenSide as usize],
-                ],
-            ],
+            has_rights,
             ..self
         }
     }
@@ -85,32 +75,17 @@ impl BoardStatus {
     }
 
     const fn rook_move<const CASTLE_DIRECTION: CastleDirection>(self) -> Self {
+        let has_rights = {
+            let mut has_rights = self.has_rights;
+            has_rights[self.side_to_move as usize][CASTLE_DIRECTION as usize] = false;
+
+            has_rights
+        };
         Self {
             // Switch sides
             side_to_move: self.side_to_move.switch(),
             has_ep_pawn: false,
-            has_rights: [
-                [
-                    (self.side_to_move.is_black()
-                        || CASTLE_DIRECTION as u8 != CastleDirection::KingSide as u8)
-                        && self.has_rights[Player::White as usize]
-                            [CastleDirection::KingSide as usize],
-                    (self.side_to_move.is_black()
-                        || CASTLE_DIRECTION as u8 != CastleDirection::QueenSide as u8)
-                        && self.has_rights[Player::White as usize]
-                            [CastleDirection::QueenSide as usize],
-                ],
-                [
-                    (self.side_to_move.is_white()
-                        || CASTLE_DIRECTION as u8 != CastleDirection::KingSide as u8)
-                        && self.has_rights[Player::Black as usize]
-                            [CastleDirection::KingSide as usize],
-                    (self.side_to_move.is_white()
-                        || CASTLE_DIRECTION as u8 != CastleDirection::QueenSide as u8)
-                        && self.has_rights[Player::Black as usize]
-                            [CastleDirection::QueenSide as usize],
-                ],
-            ],
+            has_rights,
             ..self
         }
     }
