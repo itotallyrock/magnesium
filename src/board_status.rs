@@ -73,14 +73,14 @@ impl BoardStatus {
 
     const fn switch_sides(self) -> Self {
         Self {
-            side_to_move: !self.side_to_move,
+            side_to_move: self.side_to_move.switch(),
             ..self
         }
     }
 
     const fn double_pawn_push(self) -> Self {
         Self {
-            side_to_move: !self.side_to_move,
+            side_to_move: self.side_to_move.switch(),
             has_ep_pawn: true,
             ..self
         }
@@ -88,40 +88,42 @@ impl BoardStatus {
 
     const fn king_move(self) -> Self {
         Self {
-            side_to_move: !self.side_to_move,
+            side_to_move: self.side_to_move.switch(),
             has_ep_pawn: false,
-            white_king_castle_rights: self.side_to_move != WHITE && self.white_king_castle_rights,
-            white_queen_castle_rights: self.side_to_move != WHITE && self.white_queen_castle_rights,
-            black_king_castle_rights: self.side_to_move != BLACK && self.black_king_castle_rights,
-            black_queen_castle_rights: self.side_to_move != BLACK && self.black_queen_castle_rights,
+            white_king_castle_rights: self.side_to_move.is_black() && self.white_king_castle_rights,
+            white_queen_castle_rights: self.side_to_move.is_black()
+                && self.white_queen_castle_rights,
+            black_king_castle_rights: self.side_to_move.is_white() && self.black_king_castle_rights,
+            black_queen_castle_rights: self.side_to_move.is_white()
+                && self.black_queen_castle_rights,
             ..self
         }
     }
 
     const fn quiet_move(self) -> Self {
         Self {
-            side_to_move: !self.side_to_move,
+            side_to_move: self.side_to_move.switch(),
             has_ep_pawn: false,
             ..self
         }
     }
 
     const fn rook_move<const CASTLE_DIRECTION: CastleDirection>(self) -> Self {
-        let white_king_castle_rights = (self.side_to_move != WHITE
+        let white_king_castle_rights = (self.side_to_move.is_black()
             || CASTLE_DIRECTION != KING_SIDE)
             && self.white_king_castle_rights;
-        let white_queen_castle_rights = (self.side_to_move != WHITE
+        let white_queen_castle_rights = (self.side_to_move.is_black()
             || CASTLE_DIRECTION != QUEEN_SIDE)
             && self.white_queen_castle_rights;
-        let black_king_castle_rights = (self.side_to_move != BLACK
+        let black_king_castle_rights = (self.side_to_move.is_white()
             || CASTLE_DIRECTION != KING_SIDE)
             && self.black_king_castle_rights;
-        let black_queen_castle_rights = (self.side_to_move != BLACK
+        let black_queen_castle_rights = (self.side_to_move.is_white()
             || CASTLE_DIRECTION != QUEEN_SIDE)
             && self.black_queen_castle_rights;
         Self {
             // Switch sides
-            side_to_move: !self.side_to_move,
+            side_to_move: self.side_to_move.switch(),
             has_ep_pawn: false,
             white_king_castle_rights,
             white_queen_castle_rights,

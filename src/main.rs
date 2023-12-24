@@ -1,4 +1,11 @@
-#![feature(const_trait_impl, structural_match, adt_const_params)]
+#![feature(
+    const_trait_impl,
+    const_for,
+    const_mut_refs,
+    generic_const_exprs,
+    structural_match,
+    adt_const_params
+)]
 mod bitboard;
 mod board;
 mod board_status;

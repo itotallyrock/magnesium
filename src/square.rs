@@ -1,7 +1,7 @@
 use crate::bitboard::Bit;
 
 #[rustfmt::skip]
-#[derive(Copy, Clone, Eq, PartialEq, Debug, Ord, PartialOrd)]
+#[derive( Copy, Clone, Debug, Ord, PartialOrd)]
 pub enum Square {
     A1, B1, C1, D1, E1, F1, G1, H1,
     A2, B2, C2, D2, E2, F2, G2, H2,
@@ -14,8 +14,17 @@ pub enum Square {
 }
 
 impl Square {
+    pub const COUNT: usize = 64;
     /// Get a bit-mask representation of this square
     pub const fn to_bit(self) -> Bit {
         1u64 << (self as u8)
     }
 }
+
+impl const PartialEq for Square {
+    fn eq(&self, other: &Self) -> bool {
+        (*self as u8) == (*other as u8)
+    }
+}
+
+impl const Eq for Square {}
