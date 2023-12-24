@@ -1,7 +1,11 @@
-/// The direction to castle in for either side
-pub type CastleDirection = bool;
 
-/// Castle towards the rook on the same side as the king
-pub const KING_SIDE: CastleDirection = false;
-/// Castle towards the rook on the same side as the queen
-pub const QUEEN_SIDE: CastleDirection = true;
+use core::marker::ConstParamTy;
+
+/// The direction to castle in for either side
+#[repr(u8)]
+#[derive(Copy, Clone, ConstParamTy, Debug, PartialEq, Eq)]
+pub enum  CastleDirection {
+    KingSide,
+    QueenSide,
+}
+
