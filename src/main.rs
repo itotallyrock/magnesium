@@ -1,13 +1,12 @@
 #![feature(const_trait_impl, structural_match, adt_const_params)]
-mod square;
+mod bitboard;
+mod board;
+mod board_status;
+mod castle_direction;
+mod piece_arrangement;
 mod piece_type;
 mod player;
-mod bitboard;
-mod castle_direction;
-mod board_status;
-mod piece_arrangement;
-mod board;
-
+mod square;
 
 pub fn main() {
     println!("TODO: Implement main");

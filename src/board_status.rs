@@ -1,6 +1,6 @@
 use crate::bitboard::{Bit, Bitboard, EMPTY_BITBOARD};
 use crate::castle_direction::{CastleDirection, KING_SIDE, QUEEN_SIDE};
-use crate::player::{BLACK, Player, WHITE};
+use crate::player::{Player, BLACK, WHITE};
 use crate::square::Square::{A1, A8, H1, H8};
 
 use core::marker::ConstParamTy;
@@ -134,8 +134,11 @@ impl BoardStatus {
 
 #[cfg(test)]
 mod test {
-    use test_case::test_case;
+    use crate::bitboard::{Bitboard, EMPTY_BITBOARD};
     use crate::board_status::BoardStatus;
+    use crate::castle_direction::{CastleDirection, KING_SIDE, QUEEN_SIDE};
+    use crate::player::{BLACK, WHITE};
+    use test_case::test_case;
 
     const ALL_RIGHTS_WHITE_TO_MOVE: BoardStatus = BoardStatus {
         side_to_move: WHITE,
