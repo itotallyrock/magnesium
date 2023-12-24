@@ -19,7 +19,7 @@ impl BoardStatus {
         [[0x60, 0xC], [0x6000_0000_0000_0000, 0x0C00_0000_0000_0000]];
     const ROOK_MASKS: [[Bitboard; CastleDirection::COUNT]; Player::COUNT] =
         [[H1.to_bit(), A1.to_bit()], [H8.to_bit(), A8.to_bit()]];
-    const fn can_castle<const CASTLE_DIRECTION: CastleDirection>(
+    pub const fn can_castle<const CASTLE_DIRECTION: CastleDirection>(
         self,
         attacked: Bitboard,
         occupied: Bitboard,
@@ -35,14 +35,14 @@ impl BoardStatus {
                 != EMPTY_BITBOARD
     }
 
-    const fn switch_sides(self) -> Self {
+    pub const fn switch_sides(self) -> Self {
         Self {
             side_to_move: self.side_to_move.switch(),
             ..self
         }
     }
 
-    const fn double_pawn_push(self) -> Self {
+    pub const fn double_pawn_push(self) -> Self {
         Self {
             side_to_move: self.side_to_move.switch(),
             has_ep_pawn: true,
@@ -50,7 +50,7 @@ impl BoardStatus {
         }
     }
 
-    const fn king_move(self) -> Self {
+    pub const fn king_move(self) -> Self {
         let has_rights = {
             let mut has_rights = self.has_rights;
             has_rights[self.side_to_move as usize][CastleDirection::KingSide as usize] = false;
@@ -66,7 +66,7 @@ impl BoardStatus {
         }
     }
 
-    const fn quiet_move(self) -> Self {
+    pub const fn quiet_move(self) -> Self {
         Self {
             side_to_move: self.side_to_move.switch(),
             has_ep_pawn: false,
@@ -74,7 +74,7 @@ impl BoardStatus {
         }
     }
 
-    const fn rook_move<const CASTLE_DIRECTION: CastleDirection>(self) -> Self {
+    pub const fn rook_move<const CASTLE_DIRECTION: CastleDirection>(self) -> Self {
         let has_rights = {
             let mut has_rights = self.has_rights;
             has_rights[self.side_to_move as usize][CASTLE_DIRECTION as usize] = false;
