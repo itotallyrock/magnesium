@@ -39,7 +39,12 @@ impl PieceArrangement {
         self.occupied_by_player[PLAYER as usize]
     }
 
-    pub const fn mask_for_player_and_piece<const PLAYER: Player, const PIECE_TYPE: NonKingPieceType>(&self) -> Bitboard {
+    pub const fn mask_for_player_and_piece<
+        const PLAYER: Player,
+        const PIECE_TYPE: NonKingPieceType,
+    >(
+        &self,
+    ) -> Bitboard {
         self.mask_for_player::<PLAYER>() & self.mask_for_piece::<PIECE_TYPE>()
     }
 
@@ -65,9 +70,7 @@ impl PieceArrangement {
         self,
         square: Square,
     ) -> Self {
-
         let Self {
-
             mut occupied_by_player,
             mut occupied_by_piece,
             mut piece_by_square,

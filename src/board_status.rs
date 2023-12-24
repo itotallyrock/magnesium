@@ -9,66 +9,30 @@ use core::marker::ConstParamTy;
 pub struct BoardStatus {
     pub side_to_move: Player,
     pub has_ep_pawn: bool,
-    pub white_king_castle_rights: bool,
-    pub white_queen_castle_rights: bool,
-    pub black_king_castle_rights: bool,
-    pub black_queen_castle_rights: bool,
+    pub has_rights: [[bool; CastleDirection::COUNT]; Player::COUNT],
 }
 
 impl BoardStatus {
-    const WHITE_QUEEN_SIDE_CASTLE_EMPTY: Bitboard = 0xE;
-    const WHITE_QUEEN_SIDE_CASTLE_UNATTACKED: Bitboard = 0xC;
-
-    const WHITE_KING_SIDE_CASTLE_EMPTY: Bitboard = 0x60;
-    const WHITE_KING_SIDE_CASTLE_UNATTACKED: Bitboard = 0x60;
-
-    const BLACK_KING_SIDE_CASTLE_EMPTY: Bitboard = 0x6000_0000_0000_0000;
-    const BLACK_KING_SIDE_CASTLE_UNATTACKED: Bitboard = 0x6000_0000_0000_0000;
-
-    const BLACK_QUEEN_SIDE_CASTLE_EMPTY: Bitboard = 0x0E00_0000_0000_0000;
-    const BLACK_QUEEN_SIDE_CASTLE_UNATTACKED: Bitboard = 0x0C00_0000_0000_0000;
-
-    // const WHITE_ROOK_QUEEN_CHANGE: Bitboard = 0b11111000u64;
-    // const BLACK_ROOK_QUEEN_CHANGE: Bitboard = 0b11111000u64 << 56u64;
-    // const WHITE_ROOK_KING_CHANGE: Bitboard = 0b00001111u64;
-    // const BLACK_ROOK_KING_CHANGE: Bitboard = 0b00001111u64 << 56u64;
-
-    const WHITE_QUEEN_SIDE_ROOK: Bit = A1.to_bit();
-    const BLACK_KING_SIDE_ROOK: Bit = H8.to_bit();
-    const WHITE_KING_SIDE_ROOK: Bit = H1.to_bit();
-    const BLACK_QUEEN_SIDE_ROOK: Bit = A8.to_bit();
+    const CASTLE_EMPTY: [[Bitboard; CastleDirection::COUNT]; Player::COUNT] =
+        [[0x60, 0xE], [0x6000_0000_0000_0000, 0x0E00_0000_0000_0000]];
+    const CASTLE_UNATTACKED: [[Bitboard; CastleDirection::COUNT]; Player::COUNT] =
+        [[0x60, 0xC], [0x6000_0000_0000_0000, 0x0C00_0000_0000_0000]];
+    const ROOK_MASKS: [[Bitboard; CastleDirection::COUNT]; Player::COUNT] =
+        [[H1.to_bit(), A1.to_bit()], [H8.to_bit(), A8.to_bit()]];
     const fn can_castle<const CASTLE_DIRECTION: CastleDirection>(
         self,
         attacked: Bitboard,
         occupied: Bitboard,
         rooks: Bitboard,
     ) -> bool {
-        match (CASTLE_DIRECTION, self.side_to_move) {
-            (CastleDirection::KingSide, Player::White) => {
-                self.white_king_castle_rights
-                    && occupied & Self::WHITE_KING_SIDE_CASTLE_EMPTY == EMPTY_BITBOARD
-                    && attacked & Self::WHITE_KING_SIDE_CASTLE_UNATTACKED == EMPTY_BITBOARD
-                    && rooks & Self::WHITE_KING_SIDE_ROOK != EMPTY_BITBOARD
-            }
-            (CastleDirection::QueenSide, Player::White) => {
-                self.white_queen_castle_rights
-                    && occupied & Self::WHITE_QUEEN_SIDE_CASTLE_EMPTY == EMPTY_BITBOARD
-                    && attacked & Self::WHITE_QUEEN_SIDE_CASTLE_UNATTACKED == EMPTY_BITBOARD
-                    && rooks & Self::WHITE_QUEEN_SIDE_ROOK != EMPTY_BITBOARD
-            }
-            (CastleDirection::KingSide, Player::Black) => {
-                self.black_king_castle_rights
-                    && occupied & Self::BLACK_KING_SIDE_CASTLE_EMPTY == EMPTY_BITBOARD
-                    && attacked & Self::BLACK_KING_SIDE_CASTLE_UNATTACKED == EMPTY_BITBOARD
-                    && rooks & Self::BLACK_KING_SIDE_ROOK != EMPTY_BITBOARD
-            }
-            (CastleDirection::QueenSide, Player::Black) => {
-                self.black_queen_castle_rights
-                    && occupied & Self::BLACK_QUEEN_SIDE_CASTLE_EMPTY == EMPTY_BITBOARD
-                    && attacked & Self::BLACK_QUEEN_SIDE_CASTLE_UNATTACKED == EMPTY_BITBOARD
-                    && rooks & Self::BLACK_QUEEN_SIDE_ROOK != EMPTY_BITBOARD
-            }
-        }
+        self.has_rights[self.side_to_move as usize][CASTLE_DIRECTION as usize]
+            && occupied & Self::CASTLE_EMPTY[self.side_to_move as usize][CASTLE_DIRECTION as usize]
+                == EMPTY_BITBOARD
+            && attacked
+                & Self::CASTLE_UNATTACKED[self.side_to_move as usize][CASTLE_DIRECTION as usize]
+                == EMPTY_BITBOARD
+            && rooks & Self::ROOK_MASKS[self.side_to_move as usize][CASTLE_DIRECTION as usize]
+                != EMPTY_BITBOARD
     }
 
     const fn switch_sides(self) -> Self {
@@ -90,12 +54,24 @@ impl BoardStatus {
         Self {
             side_to_move: self.side_to_move.switch(),
             has_ep_pawn: false,
-            white_king_castle_rights: self.side_to_move.is_black() && self.white_king_castle_rights,
-            white_queen_castle_rights: self.side_to_move.is_black()
-                && self.white_queen_castle_rights,
-            black_king_castle_rights: self.side_to_move.is_white() && self.black_king_castle_rights,
-            black_queen_castle_rights: self.side_to_move.is_white()
-                && self.black_queen_castle_rights,
+            has_rights: [
+                [
+                    self.side_to_move.is_black()
+                        && self.has_rights[Player::White as usize]
+                            [CastleDirection::KingSide as usize],
+                    self.side_to_move.is_white()
+                        && self.has_rights[Player::White as usize]
+                            [CastleDirection::QueenSide as usize],
+                ],
+                [
+                    self.side_to_move.is_black()
+                        && self.has_rights[Player::Black as usize]
+                            [CastleDirection::KingSide as usize],
+                    self.side_to_move.is_white()
+                        && self.has_rights[Player::Black as usize]
+                            [CastleDirection::QueenSide as usize],
+                ],
+            ],
             ..self
         }
     }
@@ -109,26 +85,32 @@ impl BoardStatus {
     }
 
     const fn rook_move<const CASTLE_DIRECTION: CastleDirection>(self) -> Self {
-        let white_king_castle_rights = (self.side_to_move.is_black()
-            || CASTLE_DIRECTION as u8 != CastleDirection::KingSide as u8)
-            && self.white_king_castle_rights;
-        let white_queen_castle_rights = (self.side_to_move.is_black()
-            || CASTLE_DIRECTION as u8 != CastleDirection::QueenSide as u8)
-            && self.white_queen_castle_rights;
-        let black_king_castle_rights = (self.side_to_move.is_white()
-            || CASTLE_DIRECTION as u8 != CastleDirection::KingSide as u8)
-            && self.black_king_castle_rights;
-        let black_queen_castle_rights = (self.side_to_move.is_white()
-            || CASTLE_DIRECTION as u8 != CastleDirection::QueenSide as u8)
-            && self.black_queen_castle_rights;
         Self {
             // Switch sides
             side_to_move: self.side_to_move.switch(),
             has_ep_pawn: false,
-            white_king_castle_rights,
-            white_queen_castle_rights,
-            black_king_castle_rights,
-            black_queen_castle_rights,
+            has_rights: [
+                [
+                    (self.side_to_move.is_black()
+                        || CASTLE_DIRECTION as u8 != CastleDirection::KingSide as u8)
+                        && self.has_rights[Player::White as usize]
+                            [CastleDirection::KingSide as usize],
+                    (self.side_to_move.is_black()
+                        || CASTLE_DIRECTION as u8 != CastleDirection::QueenSide as u8)
+                        && self.has_rights[Player::White as usize]
+                            [CastleDirection::QueenSide as usize],
+                ],
+                [
+                    (self.side_to_move.is_white()
+                        || CASTLE_DIRECTION as u8 != CastleDirection::KingSide as u8)
+                        && self.has_rights[Player::Black as usize]
+                            [CastleDirection::KingSide as usize],
+                    (self.side_to_move.is_white()
+                        || CASTLE_DIRECTION as u8 != CastleDirection::QueenSide as u8)
+                        && self.has_rights[Player::Black as usize]
+                            [CastleDirection::QueenSide as usize],
+                ],
+            ],
             ..self
         }
     }
@@ -145,22 +127,18 @@ mod test {
     const ALL_RIGHTS_WHITE_TO_MOVE: BoardStatus = BoardStatus {
         side_to_move: Player::White,
         has_ep_pawn: false,
-        white_king_castle_rights: true,
-        white_queen_castle_rights: true,
-        black_king_castle_rights: true,
-        black_queen_castle_rights: true,
+        has_rights: [[true; CastleDirection::COUNT]; Player::COUNT],
     };
     const WHITE_MISSING_KING_WHITE_TO_MOVE: BoardStatus = BoardStatus {
-        white_king_castle_rights: false,
+        has_rights: [[false, true], [true, true]],
         ..ALL_RIGHTS_WHITE_TO_MOVE
     };
     const WHITE_MISSING_QUEEN_WHITE_TO_MOVE: BoardStatus = BoardStatus {
-        white_queen_castle_rights: false,
+        has_rights: [[true, false], [true, true]],
         ..ALL_RIGHTS_WHITE_TO_MOVE
     };
     const WHITE_MISSING_BOTH_WHITE_TO_MOVE: BoardStatus = BoardStatus {
-        white_king_castle_rights: false,
-        white_queen_castle_rights: false,
+        has_rights: [[false, false], [true, true]],
         ..ALL_RIGHTS_WHITE_TO_MOVE
     };
     const ALL_RIGHTS_BLACK_TO_MOVE: BoardStatus = BoardStatus {
@@ -168,16 +146,15 @@ mod test {
         ..ALL_RIGHTS_WHITE_TO_MOVE
     };
     const BLACK_MISSING_KING_BLACK_TO_MOVE: BoardStatus = BoardStatus {
-        black_king_castle_rights: false,
+        has_rights: [[true, true], [false, true]],
         ..ALL_RIGHTS_BLACK_TO_MOVE
     };
     const BLACK_MISSING_QUEEN_BLACK_TO_MOVE: BoardStatus = BoardStatus {
-        black_queen_castle_rights: false,
+        has_rights: [[true, true], [true, false]],
         ..ALL_RIGHTS_BLACK_TO_MOVE
     };
     const BLACK_MISSING_BOTH_BLACK_TO_MOVE: BoardStatus = BoardStatus {
-        black_king_castle_rights: false,
-        black_queen_castle_rights: false,
+        has_rights: [[true, true], [false, false]],
         ..ALL_RIGHTS_BLACK_TO_MOVE
     };
 
@@ -185,8 +162,8 @@ mod test {
     #[test_case(ALL_RIGHTS_WHITE_TO_MOVE, CastleDirection::KingSide, EMPTY_BITBOARD, 0xFF91, 0x81, true; "white to move with rights and unobstructed unattacked king side")]
     #[test_case(ALL_RIGHTS_WHITE_TO_MOVE, CastleDirection::QueenSide, EMPTY_BITBOARD, 0xFF91, 0x81, true; "white to move with rights and unobstructed unattacked queen side")]
     #[test_case(WHITE_MISSING_KING_WHITE_TO_MOVE, CastleDirection::KingSide, EMPTY_BITBOARD, 0xFF51, 0x41, false; "white to move without king rights and unobstructed unattacked king side")]
-    #[test_case(WHITE_MISSING_KING_WHITE_TO_MOVE, CastleDirection::QueenSide, EMPTY_BITBOARD, 0xFF51, 0x41, true; "white to move without king rights and unobstructed unattacked queen side")]
-    #[test_case(WHITE_MISSING_QUEEN_WHITE_TO_MOVE, CastleDirection::KingSide, EMPTY_BITBOARD, 0xFF92, 0x82, true; "white to move without queen rights and unobstructed unattacked king side")]
+    #[test_case(WHITE_MISSING_KING_WHITE_TO_MOVE, CastleDirection::QueenSide, EMPTY_BITBOARD, 0xFF51, 0x41, true; "white to move without king rights and unobstructed unattacked queen side")] // FIXME
+    #[test_case(WHITE_MISSING_QUEEN_WHITE_TO_MOVE, CastleDirection::KingSide, EMPTY_BITBOARD, 0xFF92, 0x82, true; "white to move without queen rights and unobstructed unattacked king side")] // FIXME
     #[test_case(WHITE_MISSING_QUEEN_WHITE_TO_MOVE, CastleDirection::QueenSide, EMPTY_BITBOARD, 0xFF92, 0x82, false; "white to move without queen rights and unobstructed unattacked queen side")]
     #[test_case(WHITE_MISSING_BOTH_WHITE_TO_MOVE, CastleDirection::KingSide, EMPTY_BITBOARD, 0xFF52, 0x42, false; "white to move without rights and unobstructed unattacked king side")]
     #[test_case(WHITE_MISSING_BOTH_WHITE_TO_MOVE, CastleDirection::QueenSide, EMPTY_BITBOARD, 0xFF52, 0x42, false; "white to move without rights and unobstructed unattacked queen side")]
@@ -194,8 +171,8 @@ mod test {
     #[test_case(ALL_RIGHTS_BLACK_TO_MOVE, CastleDirection::KingSide, EMPTY_BITBOARD, 0x91FF000000000000, 0x8100000000000000, true; "black to move with rights and unobstructed unattacked king side")]
     #[test_case(ALL_RIGHTS_BLACK_TO_MOVE, CastleDirection::QueenSide, EMPTY_BITBOARD, 0x91FF000000000000, 0x8100000000000000, true; "black to move with rights and unobstructed unattacked queen side")]
     #[test_case(BLACK_MISSING_KING_BLACK_TO_MOVE, CastleDirection::KingSide, EMPTY_BITBOARD, 0x51ff000000000000, 0x4100000000000000, false; "black to move without king rights and unobstructed unattacked king side")]
-    #[test_case(BLACK_MISSING_KING_BLACK_TO_MOVE, CastleDirection::QueenSide, EMPTY_BITBOARD, 0x51ff000000000000, 0x4100000000000000, true; "black to move without king rights and unobstructed unattacked queen side")]
-    #[test_case(BLACK_MISSING_QUEEN_BLACK_TO_MOVE, CastleDirection::KingSide, EMPTY_BITBOARD, 0x92ff000000000000, 0x8200000000000000, true; "black to move without queen rights and unobstructed unattacked king side")]
+    #[test_case(BLACK_MISSING_KING_BLACK_TO_MOVE, CastleDirection::QueenSide, EMPTY_BITBOARD, 0x51ff000000000000, 0x4100000000000000, true; "black to move without king rights and unobstructed unattacked queen side")] // FIXME
+    #[test_case(BLACK_MISSING_QUEEN_BLACK_TO_MOVE, CastleDirection::KingSide, EMPTY_BITBOARD, 0x92ff000000000000, 0x8200000000000000, true; "black to move without queen rights and unobstructed unattacked king side")] // FIXME
     #[test_case(BLACK_MISSING_QUEEN_BLACK_TO_MOVE, CastleDirection::QueenSide, EMPTY_BITBOARD, 0x92ff000000000000, 0x8200000000000000, false; "black to move without queen rights and unobstructed unattacked queen side")]
     #[test_case(BLACK_MISSING_BOTH_BLACK_TO_MOVE, CastleDirection::KingSide, EMPTY_BITBOARD, 0x52ff000000000000, 0x4200000000000000, false; "black to move without rights and unobstructed unattacked king side")]
     #[test_case(BLACK_MISSING_BOTH_BLACK_TO_MOVE, CastleDirection::QueenSide, EMPTY_BITBOARD, 0x52ff000000000000, 0x4200000000000000, false; "black to move without rights and unobstructed unattacked queen side")]
