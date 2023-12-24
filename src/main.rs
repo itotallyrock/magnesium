@@ -89,22 +89,30 @@ impl BoardStatus {
         rooks: Bitboard,
     ) -> bool {
         match (CASTLE_DIRECTION, self.side_to_move) {
-            (KING_SIDE, WHITE) => self.white_king_castle_rights
-                && occupied & Self::WHITE_KING_SIDE_CASTLE_EMPTY == EMPTY_BITBOARD
-                && attacked & Self::WHITE_KING_SIDE_CASTLE_UNATTACKED == EMPTY_BITBOARD
-                && rooks & Self::WHITE_KING_SIDE_ROOK != EMPTY_BITBOARD,
-            (QUEEN_SIDE, WHITE) => self.white_queen_castle_rights
-                && occupied & Self::WHITE_QUEEN_SIDE_CASTLE_EMPTY == EMPTY_BITBOARD
-                && attacked & Self::WHITE_QUEEN_SIDE_CASTLE_UNATTACKED == EMPTY_BITBOARD
-                && rooks & Self::WHITE_QUEEN_SIDE_ROOK != EMPTY_BITBOARD,
-            (KING_SIDE, BLACK) => self.black_king_castle_rights
-                && occupied & Self::BLACK_KING_SIDE_CASTLE_EMPTY == EMPTY_BITBOARD
-                && attacked & Self::BLACK_KING_SIDE_CASTLE_UNATTACKED == EMPTY_BITBOARD
-                && rooks & Self::BLACK_KING_SIDE_ROOK != EMPTY_BITBOARD,
-            (QUEEN_SIDE, BLACK) => self.black_queen_castle_rights
-                && occupied & Self::BLACK_QUEEN_SIDE_CASTLE_EMPTY == EMPTY_BITBOARD
-                && attacked & Self::BLACK_QUEEN_SIDE_CASTLE_UNATTACKED == EMPTY_BITBOARD
-                && rooks & Self::BLACK_QUEEN_SIDE_ROOK != EMPTY_BITBOARD,
+            (KING_SIDE, WHITE) => {
+                self.white_king_castle_rights
+                    && occupied & Self::WHITE_KING_SIDE_CASTLE_EMPTY == EMPTY_BITBOARD
+                    && attacked & Self::WHITE_KING_SIDE_CASTLE_UNATTACKED == EMPTY_BITBOARD
+                    && rooks & Self::WHITE_KING_SIDE_ROOK != EMPTY_BITBOARD
+            }
+            (QUEEN_SIDE, WHITE) => {
+                self.white_queen_castle_rights
+                    && occupied & Self::WHITE_QUEEN_SIDE_CASTLE_EMPTY == EMPTY_BITBOARD
+                    && attacked & Self::WHITE_QUEEN_SIDE_CASTLE_UNATTACKED == EMPTY_BITBOARD
+                    && rooks & Self::WHITE_QUEEN_SIDE_ROOK != EMPTY_BITBOARD
+            }
+            (KING_SIDE, BLACK) => {
+                self.black_king_castle_rights
+                    && occupied & Self::BLACK_KING_SIDE_CASTLE_EMPTY == EMPTY_BITBOARD
+                    && attacked & Self::BLACK_KING_SIDE_CASTLE_UNATTACKED == EMPTY_BITBOARD
+                    && rooks & Self::BLACK_KING_SIDE_ROOK != EMPTY_BITBOARD
+            }
+            (QUEEN_SIDE, BLACK) => {
+                self.black_queen_castle_rights
+                    && occupied & Self::BLACK_QUEEN_SIDE_CASTLE_EMPTY == EMPTY_BITBOARD
+                    && attacked & Self::BLACK_QUEEN_SIDE_CASTLE_UNATTACKED == EMPTY_BITBOARD
+                    && rooks & Self::BLACK_QUEEN_SIDE_ROOK != EMPTY_BITBOARD
+            }
         }
     }
 
@@ -252,12 +260,22 @@ mod test {
     #[test_case(WHITE_MISSING_BOTH_WHITE_TO_MOVE.switch_sides(), KING_SIDE, EMPTY_BITBOARD, 0x91FF000000000000, 0x8100000000000000, true; "black to move with white missing king rights unobstructed unattacked king side")]
     #[test_case(BLACK_MISSING_BOTH_BLACK_TO_MOVE.switch_sides(), QUEEN_SIDE, EMPTY_BITBOARD, 0xff91, 0x81, true; "white to move with black missing king rights unobstructed unattacked queen side")]
     #[test_case(WHITE_MISSING_BOTH_WHITE_TO_MOVE.switch_sides(), QUEEN_SIDE, EMPTY_BITBOARD, 0x91FF000000000000, 0x8100000000000000, true; "black to move with white missing king rights unobstructed unattacked queen side")]
-    fn can_castle_scenarios(board_status: BoardStatus, castle_direction: CastleDirection, attacked: Bitboard, occupied: Bitboard, rooks: Bitboard, expected: bool) {
+    fn can_castle_scenarios(
+        board_status: BoardStatus,
+        castle_direction: CastleDirection,
+        attacked: Bitboard,
+        occupied: Bitboard,
+        rooks: Bitboard,
+        expected: bool,
+    ) {
         let actual = if castle_direction == KING_SIDE {
             board_status.can_castle::<KING_SIDE>(attacked, occupied, rooks)
         } else {
             board_status.can_castle::<QUEEN_SIDE>(attacked, occupied, rooks)
         };
-        assert_eq!(actual, expected, "attacked = {attacked:X} occupied = {occupied:X} rooks = {rooks:X} {board_status:?}");
+        assert_eq!(
+            actual, expected,
+            "attacked = {attacked:X} occupied = {occupied:X} rooks = {rooks:X} {board_status:?}"
+        );
     }
 }
