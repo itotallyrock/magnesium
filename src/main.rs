@@ -1,7 +1,5 @@
 #![feature(const_trait_impl, structural_match)]
 
-use std::marker::StructuralEq;
-
 pub type Player = bool;
 pub const WHITE: Player = false;
 pub const BLACK: Player = true;
@@ -13,7 +11,7 @@ pub enum PieceType {
     Bishop,
     Rook,
     Queen,
-    King
+    King,
 }
 
 #[rustfmt::skip]
@@ -37,6 +35,8 @@ impl Square {
 
 pub type Bitboard = u64;
 
+pub const EMPTY_BITBOARD: Bitboard = 0u64;
+
 /// The direction to castle in for either side
 pub type CastleDirection = bool;
 /// Castle with the rook on the same side as the king
@@ -48,10 +48,10 @@ const QUEEN_SIDE: CastleDirection = true;
 pub struct BoardStatus {
     pub side_to_move: Player,
     pub has_ep_pawn: bool,
-    pub can_white_king_castle: bool,
-    pub can_white_queen_castle: bool,
-    pub can_black_king_castle: bool,
-    pub can_black_queen_castle: bool,
+    pub white_king_castle_rights: bool,
+    pub white_queen_castle_rights: bool,
+    pub black_king_castle_rights: bool,
+    pub black_queen_castle_rights: bool,
 }
 
 impl BoardStatus {
@@ -76,14 +76,39 @@ impl BoardStatus {
     const BLACK_ROOK_KING: Bitboard = 0b10000000u64 << 56u64;
     const WHITE_ROOK_KING: Bitboard = 0b00000001u64;
     const BLACK_ROOK_QUEEN: Bitboard = 0b00000001u64 << 56u64;
-    const fn can_castle(self, castle_direction: CastleDirection, attacked: Bitboard, occupied: Bitboard, rook: Bitboard) -> bool {
-        (castle_direction == KING_SIDE && (self.side_to_move == WHITE && self.can_white_king_castle && occupied & Self::WHITE_NOT_OCCUPIED_KING == 0u64 && attacked & Self::WHITE_NOT_ATTACKED_KING == 0u64 && rook & Self::WHITE_ROOK_KING != 0u64)
-        || (self.can_black_king_castle && occupied & Self::BLACK_NOT_OCCUPIED_KING == 0u64 && attacked & Self::BLACK_NOT_ATTACKED_KING == 0u64 && rook & Self::BLACK_ROOK_KING != 0u64))
-        || (self.side_to_move == WHITE && self.can_white_queen_castle && occupied & Self::WHITE_NOT_OCCUPIED_QUEEN == 0u64 && attacked & Self::WHITE_NOT_ATTACKED_QUEEN == 0u64 && rook & Self::WHITE_ROOK_QUEEN != 0u64)
-            || (self.can_black_queen_castle && occupied & Self::BLACK_NOT_OCCUPIED_QUEEN == 0u64 && attacked & Self::BLACK_NOT_ATTACKED_QUEEN == 0u64 && rook & Self::BLACK_ROOK_QUEEN != 0u64)
+    const fn can_castle(
+        self,
+        castle_direction: CastleDirection,
+        attacked: Bitboard,
+        occupied: Bitboard,
+        rooks: Bitboard,
+    ) -> bool {
+        (castle_direction == KING_SIDE
+            // King side white
+            && (self.side_to_move == WHITE
+                && self.white_king_castle_rights
+                && occupied & Self::WHITE_NOT_OCCUPIED_KING == EMPTY_BITBOARD
+                && attacked & Self::WHITE_NOT_ATTACKED_KING == EMPTY_BITBOARD
+                && rooks & Self::WHITE_ROOK_KING != EMPTY_BITBOARD)
+            // King side black
+            || (self.black_king_castle_rights
+                && occupied & Self::BLACK_NOT_OCCUPIED_KING == EMPTY_BITBOARD
+                && attacked & Self::BLACK_NOT_ATTACKED_KING == EMPTY_BITBOARD
+                && rooks & Self::BLACK_ROOK_KING != EMPTY_BITBOARD))
+            // Queen side white
+            || (self.side_to_move == WHITE
+                && self.white_queen_castle_rights
+                && occupied & Self::WHITE_NOT_OCCUPIED_QUEEN == EMPTY_BITBOARD
+                && attacked & Self::WHITE_NOT_ATTACKED_QUEEN == EMPTY_BITBOARD
+                && rooks & Self::WHITE_ROOK_QUEEN != EMPTY_BITBOARD)
+            // Queen side black
+            || (self.black_queen_castle_rights
+                && occupied & Self::BLACK_NOT_OCCUPIED_QUEEN == EMPTY_BITBOARD
+                && attacked & Self::BLACK_NOT_ATTACKED_QUEEN == EMPTY_BITBOARD
+                && rooks & Self::BLACK_ROOK_QUEEN != EMPTY_BITBOARD)
     }
 
-    const fn pawn_push(self) -> Self {
+    const fn double_pawn_push(self) -> Self {
         Self {
             side_to_move: !self.side_to_move,
             has_ep_pawn: true,
@@ -94,10 +119,11 @@ impl BoardStatus {
     const fn king_move(self) -> Self {
         Self {
             side_to_move: !self.side_to_move,
-            can_white_king_castle: self.side_to_move != WHITE && self.can_white_king_castle,
-            can_white_queen_castle: self.side_to_move != WHITE && self.can_white_queen_castle,
-            can_black_king_castle: self.side_to_move != BLACK && self.can_black_king_castle,
-            can_black_queen_castle: self.side_to_move != BLACK && self.can_black_queen_castle,
+            has_ep_pawn: false,
+            white_king_castle_rights: self.side_to_move != WHITE && self.white_king_castle_rights,
+            white_queen_castle_rights: self.side_to_move != WHITE && self.white_queen_castle_rights,
+            black_king_castle_rights: self.side_to_move != BLACK && self.black_king_castle_rights,
+            black_queen_castle_rights: self.side_to_move != BLACK && self.black_queen_castle_rights,
             ..self
         }
     }
@@ -110,18 +136,46 @@ impl BoardStatus {
         }
     }
 
-    const fn rook_move(self, castle_direction: CastleDirection) -> Self {
+    const fn rook_move<const CASTLE_DIRECTION: CastleDirection>(self) -> Self {
+        let white_king_castle_rights = (self.side_to_move != WHITE
+            || CASTLE_DIRECTION == KING_SIDE)
+            && self.white_king_castle_rights;
+        let white_queen_castle_rights = (self.side_to_move != WHITE
+            || CASTLE_DIRECTION == QUEEN_SIDE)
+            && self.white_queen_castle_rights;
+        let black_king_castle_rights = (self.side_to_move != BLACK
+            || CASTLE_DIRECTION == KING_SIDE)
+            && self.black_king_castle_rights;
+        let black_queen_castle_rights = (self.side_to_move != BLACK
+            || CASTLE_DIRECTION == QUEEN_SIDE)
+            && self.black_queen_castle_rights;
         Self {
+            // Switch sides
             side_to_move: !self.side_to_move,
-            can_white_king_castle: self.side_to_move != WHITE && castle_direction != KING_SIDE && self.can_white_king_castle,
-            can_white_queen_castle: self.side_to_move != WHITE && castle_direction != QUEEN_SIDE && self.can_white_queen_castle,
-            can_black_king_castle: self.side_to_move != BLACK && castle_direction != KING_SIDE && self.can_black_king_castle,
-            can_black_queen_castle: self.side_to_move != BLACK && castle_direction != QUEEN_SIDE && self.can_black_queen_castle,
+            has_ep_pawn: false,
+            white_king_castle_rights,
+            white_queen_castle_rights,
+            black_king_castle_rights,
+            black_queen_castle_rights,
             ..self
         }
     }
 }
 
-fn main() {
-    println!("Hello, world!");
+pub fn main() {
+    let board_status = BoardStatus {
+        side_to_move: WHITE,
+        has_ep_pawn: false,
+        white_king_castle_rights: true,
+        white_queen_castle_rights: true,
+        black_king_castle_rights: true,
+        black_queen_castle_rights: true,
+    };
+    let attacked: Bitboard = 0;
+    let occupied: Bitboard = 0b1111111110010001u64;
+    let rooks: Bitboard = 0b10000001u64;
+    println!(
+        "can white king castle {}",
+        board_status.can_castle(KING_SIDE, attacked, occupied, rooks)
+    );
 }
