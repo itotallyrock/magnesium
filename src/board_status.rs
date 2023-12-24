@@ -12,6 +12,12 @@ pub struct BoardStatus {
     pub has_rights: [[bool; CastleDirection::COUNT]; Player::COUNT],
 }
 
+pub const DEFAULT_BOARD_STATUS: BoardStatus = BoardStatus {
+    side_to_move: Player::White,
+    has_ep_pawn: false,
+    has_rights: [[true; CastleDirection::COUNT]; Player::COUNT],
+};
+
 impl BoardStatus {
     const CASTLE_EMPTY: [[Bitboard; CastleDirection::COUNT]; Player::COUNT] =
         [[0x60, 0xE], [0x6000_0000_0000_0000, 0x0E00_0000_0000_0000]];

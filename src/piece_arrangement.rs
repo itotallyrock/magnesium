@@ -31,6 +31,11 @@ impl PieceArrangement {
         }
     }
 
+    pub const fn occupied(&self) -> Bitboard {
+        self.occupied_by_player[Player::White as usize]
+            | self.occupied_by_player[Player::Black as usize]
+    }
+
     pub const fn mask_for_piece<const PIECE_TYPE: NonKingPieceType>(&self) -> Bitboard {
         self.occupied_by_piece[PIECE_TYPE as usize]
     }
