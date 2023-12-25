@@ -56,6 +56,10 @@ impl BoardStatus {
         }
     }
 
+    pub const fn side_to_move(self) -> Player {
+        self.side_to_move
+    }
+
     pub const fn king_move(self) -> Self {
         let has_rights = {
             let mut has_rights = self.has_rights;
