@@ -152,37 +152,48 @@ impl PieceArrangement {
     }
 
     pub const fn move_by_squares<const IS_WHITE: bool>(self, from: Square, to: Square) -> Self {
-        match self.piece_type_on(from).unwrap() {
-            PieceType::Pawn => self.move_piece::<{ IS_WHITE }, { PieceType::Pawn }>(from, to),
-            PieceType::Knight => self.move_piece::<{ IS_WHITE }, { PieceType::Knight }>(from, to),
-            PieceType::Bishop => self.move_piece::<{ IS_WHITE }, { PieceType::Bishop }>(from, to),
-            PieceType::Rook => self.move_piece::<{ IS_WHITE }, { PieceType::Rook }>(from, to),
-            PieceType::Queen => self.move_piece::<{ IS_WHITE }, { PieceType::Queen }>(from, to),
-            PieceType::King => self.move_piece::<{ IS_WHITE }, { PieceType::King }>(from, to),
+        match self.piece_type_on(from) {
+            Some(PieceType::Pawn) => self.move_piece::<{ IS_WHITE }, { PieceType::Pawn }>(from, to),
+            Some(PieceType::Knight) => {
+                self.move_piece::<{ IS_WHITE }, { PieceType::Knight }>(from, to)
+            }
+            Some(PieceType::Bishop) => {
+                self.move_piece::<{ IS_WHITE }, { PieceType::Bishop }>(from, to)
+            }
+            Some(PieceType::Rook) => self.move_piece::<{ IS_WHITE }, { PieceType::Rook }>(from, to),
+            Some(PieceType::Queen) => {
+                self.move_piece::<{ IS_WHITE }, { PieceType::Queen }>(from, to)
+            }
+            Some(PieceType::King) => self.move_piece::<{ IS_WHITE }, { PieceType::King }>(from, to),
+            None => panic!("attepting to move from empty square"),
         }
     }
 
     pub const fn remove_by_square<const IS_WHITE: bool>(self, from: Square) -> Self {
-        match self.piece_type_on(from).unwrap() {
-            PieceType::Pawn => self.remove_piece::<{ IS_WHITE }, { NonKingPieceType::Pawn }>(from),
-            PieceType::Knight => {
+        match self.piece_type_on(from) {
+            Some(PieceType::Pawn) => {
+                self.remove_piece::<{ IS_WHITE }, { NonKingPieceType::Pawn }>(from)
+            }
+            Some(PieceType::Knight) => {
                 self.remove_piece::<{ IS_WHITE }, { NonKingPieceType::Knight }>(from)
             }
-            PieceType::Bishop => {
+            Some(PieceType::Bishop) => {
                 self.remove_piece::<{ IS_WHITE }, { NonKingPieceType::Bishop }>(from)
             }
-            PieceType::Rook => self.remove_piece::<{ IS_WHITE }, { NonKingPieceType::Rook }>(from),
-            PieceType::Queen => {
+            Some(PieceType::Rook) => {
+                self.remove_piece::<{ IS_WHITE }, { NonKingPieceType::Rook }>(from)
+            }
+            Some(PieceType::Queen) => {
                 self.remove_piece::<{ IS_WHITE }, { NonKingPieceType::Queen }>(from)
             }
-            PieceType::King => panic!("attempting to remove king"),
+            Some(PieceType::King) => panic!("attempting to remove king"),
+            None => panic!("attepting to move from empty square"),
         }
     }
 }
 
 #[cfg(test)]
 mod test {
-    
 
     // TODO
 }

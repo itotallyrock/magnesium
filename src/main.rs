@@ -1,14 +1,7 @@
-#![feature(
-    const_trait_impl,
-    const_for,
-    const_option,
-    const_mut_refs,
-    generic_const_exprs,
-    structural_match,
-    adt_const_params
-)]
+#![allow(incomplete_features)]
+#![feature(generic_const_exprs, adt_const_params)]
 
-use crate::board::{DEFAULT_BOARD};
+use crate::board::{Board, DEFAULT_BOARD};
 
 use crate::castle_direction::CastleDirection;
 use crate::square::Square::*;
@@ -24,7 +17,7 @@ mod square;
 
 pub fn main() {
     println!("TODO: Implement main");
-    let board = DEFAULT_BOARD
+    const BOARD: Board<false, false, false, false, true, true> = DEFAULT_BOARD
         .quiet_move(G1, F3)
         .quiet_move(G8, F6)
         .double_pawn_push(E2, E4)
@@ -32,5 +25,5 @@ pub fn main() {
         .quiet_move(F1, C4)
         .quiet_move(F8, C5)
         .castle::<{ CastleDirection::KingSide }>();
-    println!("fen after castle: {}", board.fen());
+    println!("fen after castle: {}", BOARD.fen());
 }

@@ -30,10 +30,6 @@ pub enum PromotionPieceType {
     Queen,
 }
 
-impl PieceType {
-    pub const COUNT: usize = 6;
-}
-
 impl NonKingPieceType {
     pub const COUNT: usize = 5;
     pub const fn to_piece_type(self) -> PieceType {

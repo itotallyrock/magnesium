@@ -17,44 +17,43 @@ pub struct Board<
     pieces: PieceArrangement,
 }
 
-pub const DEFAULT_BOARD: Board<true, false, true, true, true, true> =
-    Board {
-        pieces: PieceArrangement::new(E1, E8)
-            // White back rank
-            .add_piece::<true, { NonKingPieceType::Rook }>(A1)
-            .add_piece::<true, { NonKingPieceType::Knight }>(B1)
-            .add_piece::<true, { NonKingPieceType::Bishop }>(C1)
-            .add_piece::<true, { NonKingPieceType::Queen }>(D1)
-            .add_piece::<true, { NonKingPieceType::Bishop }>(F1)
-            .add_piece::<true, { NonKingPieceType::Knight }>(G1)
-            .add_piece::<true, { NonKingPieceType::Rook }>(H1)
-            // White pawns
-            .add_piece::<true, { NonKingPieceType::Pawn }>(A2)
-            .add_piece::<true, { NonKingPieceType::Pawn }>(B2)
-            .add_piece::<true, { NonKingPieceType::Pawn }>(C2)
-            .add_piece::<true, { NonKingPieceType::Pawn }>(D2)
-            .add_piece::<true, { NonKingPieceType::Pawn }>(E2)
-            .add_piece::<true, { NonKingPieceType::Pawn }>(F2)
-            .add_piece::<true, { NonKingPieceType::Pawn }>(G2)
-            .add_piece::<true, { NonKingPieceType::Pawn }>(H2)
-            // Black back rank
-            .add_piece::<false, { NonKingPieceType::Rook }>(A8)
-            .add_piece::<false, { NonKingPieceType::Knight }>(B8)
-            .add_piece::<false, { NonKingPieceType::Bishop }>(C8)
-            .add_piece::<false, { NonKingPieceType::Queen }>(D8)
-            .add_piece::<false, { NonKingPieceType::Bishop }>(F8)
-            .add_piece::<false, { NonKingPieceType::Knight }>(G8)
-            .add_piece::<false, { NonKingPieceType::Rook }>(H8)
-            // Black pawns
-            .add_piece::<false, { NonKingPieceType::Pawn }>(A7)
-            .add_piece::<false, { NonKingPieceType::Pawn }>(B7)
-            .add_piece::<false, { NonKingPieceType::Pawn }>(C7)
-            .add_piece::<false, { NonKingPieceType::Pawn }>(D7)
-            .add_piece::<false, { NonKingPieceType::Pawn }>(E7)
-            .add_piece::<false, { NonKingPieceType::Pawn }>(F7)
-            .add_piece::<false, { NonKingPieceType::Pawn }>(G7)
-            .add_piece::<false, { NonKingPieceType::Pawn }>(H7),
-    };
+pub const DEFAULT_BOARD: Board<true, false, true, true, true, true> = Board {
+    pieces: PieceArrangement::new(E1, E8)
+        // White back rank
+        .add_piece::<true, { NonKingPieceType::Rook }>(A1)
+        .add_piece::<true, { NonKingPieceType::Knight }>(B1)
+        .add_piece::<true, { NonKingPieceType::Bishop }>(C1)
+        .add_piece::<true, { NonKingPieceType::Queen }>(D1)
+        .add_piece::<true, { NonKingPieceType::Bishop }>(F1)
+        .add_piece::<true, { NonKingPieceType::Knight }>(G1)
+        .add_piece::<true, { NonKingPieceType::Rook }>(H1)
+        // White pawns
+        .add_piece::<true, { NonKingPieceType::Pawn }>(A2)
+        .add_piece::<true, { NonKingPieceType::Pawn }>(B2)
+        .add_piece::<true, { NonKingPieceType::Pawn }>(C2)
+        .add_piece::<true, { NonKingPieceType::Pawn }>(D2)
+        .add_piece::<true, { NonKingPieceType::Pawn }>(E2)
+        .add_piece::<true, { NonKingPieceType::Pawn }>(F2)
+        .add_piece::<true, { NonKingPieceType::Pawn }>(G2)
+        .add_piece::<true, { NonKingPieceType::Pawn }>(H2)
+        // Black back rank
+        .add_piece::<false, { NonKingPieceType::Rook }>(A8)
+        .add_piece::<false, { NonKingPieceType::Knight }>(B8)
+        .add_piece::<false, { NonKingPieceType::Bishop }>(C8)
+        .add_piece::<false, { NonKingPieceType::Queen }>(D8)
+        .add_piece::<false, { NonKingPieceType::Bishop }>(F8)
+        .add_piece::<false, { NonKingPieceType::Knight }>(G8)
+        .add_piece::<false, { NonKingPieceType::Rook }>(H8)
+        // Black pawns
+        .add_piece::<false, { NonKingPieceType::Pawn }>(A7)
+        .add_piece::<false, { NonKingPieceType::Pawn }>(B7)
+        .add_piece::<false, { NonKingPieceType::Pawn }>(C7)
+        .add_piece::<false, { NonKingPieceType::Pawn }>(D7)
+        .add_piece::<false, { NonKingPieceType::Pawn }>(E7)
+        .add_piece::<false, { NonKingPieceType::Pawn }>(F7)
+        .add_piece::<false, { NonKingPieceType::Pawn }>(G7)
+        .add_piece::<false, { NonKingPieceType::Pawn }>(H7),
+};
 
 impl<
         const IS_WHITE_TO_MOVE: bool,
