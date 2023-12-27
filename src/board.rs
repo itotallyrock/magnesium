@@ -1,7 +1,7 @@
 use crate::bitboard::{Bitboard, EMPTY_BITBOARD};
 use crate::castle_direction::CastleDirection;
 use crate::piece_arrangement::PieceArrangement;
-use crate::piece_type::{NonKingPieceType, PieceType, PromotionPieceType};
+use crate::piece_type::{NonKingPieceType, PieceType};
 use crate::player::Player;
 use crate::square::{Square, Square::*, SQUARES};
 
@@ -17,43 +17,43 @@ pub struct Board<
     pieces: PieceArrangement,
 }
 
-pub const DEFAULT_BOARD: Board<{ true }, { false }, { true }, { true }, { true }, { true }> =
+pub const DEFAULT_BOARD: Board<true, false, true, true, true, true> =
     Board {
         pieces: PieceArrangement::new(E1, E8)
             // White back rank
-            .add_piece::<{ true }, { NonKingPieceType::Rook }>(A1)
-            .add_piece::<{ true }, { NonKingPieceType::Knight }>(B1)
-            .add_piece::<{ true }, { NonKingPieceType::Bishop }>(C1)
-            .add_piece::<{ true }, { NonKingPieceType::Queen }>(D1)
-            .add_piece::<{ true }, { NonKingPieceType::Bishop }>(F1)
-            .add_piece::<{ true }, { NonKingPieceType::Knight }>(G1)
-            .add_piece::<{ true }, { NonKingPieceType::Rook }>(H1)
+            .add_piece::<true, { NonKingPieceType::Rook }>(A1)
+            .add_piece::<true, { NonKingPieceType::Knight }>(B1)
+            .add_piece::<true, { NonKingPieceType::Bishop }>(C1)
+            .add_piece::<true, { NonKingPieceType::Queen }>(D1)
+            .add_piece::<true, { NonKingPieceType::Bishop }>(F1)
+            .add_piece::<true, { NonKingPieceType::Knight }>(G1)
+            .add_piece::<true, { NonKingPieceType::Rook }>(H1)
             // White pawns
-            .add_piece::<{ true }, { NonKingPieceType::Pawn }>(A2)
-            .add_piece::<{ true }, { NonKingPieceType::Pawn }>(B2)
-            .add_piece::<{ true }, { NonKingPieceType::Pawn }>(C2)
-            .add_piece::<{ true }, { NonKingPieceType::Pawn }>(D2)
-            .add_piece::<{ true }, { NonKingPieceType::Pawn }>(E2)
-            .add_piece::<{ true }, { NonKingPieceType::Pawn }>(F2)
-            .add_piece::<{ true }, { NonKingPieceType::Pawn }>(G2)
-            .add_piece::<{ true }, { NonKingPieceType::Pawn }>(H2)
+            .add_piece::<true, { NonKingPieceType::Pawn }>(A2)
+            .add_piece::<true, { NonKingPieceType::Pawn }>(B2)
+            .add_piece::<true, { NonKingPieceType::Pawn }>(C2)
+            .add_piece::<true, { NonKingPieceType::Pawn }>(D2)
+            .add_piece::<true, { NonKingPieceType::Pawn }>(E2)
+            .add_piece::<true, { NonKingPieceType::Pawn }>(F2)
+            .add_piece::<true, { NonKingPieceType::Pawn }>(G2)
+            .add_piece::<true, { NonKingPieceType::Pawn }>(H2)
             // Black back rank
-            .add_piece::<{ false }, { NonKingPieceType::Rook }>(A8)
-            .add_piece::<{ false }, { NonKingPieceType::Knight }>(B8)
-            .add_piece::<{ false }, { NonKingPieceType::Bishop }>(C8)
-            .add_piece::<{ false }, { NonKingPieceType::Queen }>(D8)
-            .add_piece::<{ false }, { NonKingPieceType::Bishop }>(F8)
-            .add_piece::<{ false }, { NonKingPieceType::Knight }>(G8)
-            .add_piece::<{ false }, { NonKingPieceType::Rook }>(H8)
+            .add_piece::<false, { NonKingPieceType::Rook }>(A8)
+            .add_piece::<false, { NonKingPieceType::Knight }>(B8)
+            .add_piece::<false, { NonKingPieceType::Bishop }>(C8)
+            .add_piece::<false, { NonKingPieceType::Queen }>(D8)
+            .add_piece::<false, { NonKingPieceType::Bishop }>(F8)
+            .add_piece::<false, { NonKingPieceType::Knight }>(G8)
+            .add_piece::<false, { NonKingPieceType::Rook }>(H8)
             // Black pawns
-            .add_piece::<{ false }, { NonKingPieceType::Pawn }>(A7)
-            .add_piece::<{ false }, { NonKingPieceType::Pawn }>(B7)
-            .add_piece::<{ false }, { NonKingPieceType::Pawn }>(C7)
-            .add_piece::<{ false }, { NonKingPieceType::Pawn }>(D7)
-            .add_piece::<{ false }, { NonKingPieceType::Pawn }>(E7)
-            .add_piece::<{ false }, { NonKingPieceType::Pawn }>(F7)
-            .add_piece::<{ false }, { NonKingPieceType::Pawn }>(G7)
-            .add_piece::<{ false }, { NonKingPieceType::Pawn }>(H7),
+            .add_piece::<false, { NonKingPieceType::Pawn }>(A7)
+            .add_piece::<false, { NonKingPieceType::Pawn }>(B7)
+            .add_piece::<false, { NonKingPieceType::Pawn }>(C7)
+            .add_piece::<false, { NonKingPieceType::Pawn }>(D7)
+            .add_piece::<false, { NonKingPieceType::Pawn }>(E7)
+            .add_piece::<false, { NonKingPieceType::Pawn }>(F7)
+            .add_piece::<false, { NonKingPieceType::Pawn }>(G7)
+            .add_piece::<false, { NonKingPieceType::Pawn }>(H7),
     };
 
 impl<
@@ -120,16 +120,16 @@ impl<
 
         fen.push(' ');
         if WHITE_HAS_KING_CASTLE_RIGHTS {
-            fen.push_str("K");
+            fen.push('K');
         }
         if WHITE_HAS_QUEEN_CASTLE_RIGHTS {
-            fen.push_str("Q");
+            fen.push('Q');
         }
         if BLACK_HAS_KING_CASTLE_RIGHTS {
-            fen.push_str("k");
+            fen.push('k');
         }
         if BLACK_HAS_KING_CASTLE_RIGHTS {
-            fen.push_str("q");
+            fen.push('q');
         }
 
         if !WHITE_HAS_KING_CASTLE_RIGHTS
@@ -214,7 +214,7 @@ impl<
         self,
     ) -> Board<
         { !IS_WHITE_TO_MOVE },
-        { false },
+        false,
         { Self::white_king_castle_after() },
         { Self::white_queen_castle_after() },
         { Self::black_king_castle_after() },
@@ -245,7 +245,7 @@ impl<
         to: Square,
     ) -> Board<
         { !IS_WHITE_TO_MOVE },
-        { false },
+        false,
         { WHITE_HAS_KING_CASTLE_RIGHTS },
         { WHITE_HAS_QUEEN_CASTLE_RIGHTS },
         { BLACK_HAS_KING_CASTLE_RIGHTS },
@@ -264,7 +264,7 @@ impl<
         to: Square,
     ) -> Board<
         { !IS_WHITE_TO_MOVE },
-        { false },
+        false,
         { WHITE_HAS_KING_CASTLE_RIGHTS },
         { WHITE_HAS_QUEEN_CASTLE_RIGHTS },
         { BLACK_HAS_KING_CASTLE_RIGHTS },
@@ -301,7 +301,7 @@ impl<
         to: Square,
     ) -> Board<
         { !IS_WHITE_TO_MOVE },
-        { false },
+        false,
         { Self::white_king_rook_move_after::<CASTLE_DIRECTION>() },
         { Self::white_queen_rook_move_after::<CASTLE_DIRECTION>() },
         { Self::black_king_rook_move_after::<CASTLE_DIRECTION>() },
@@ -321,7 +321,7 @@ impl<
         to: Square,
     ) -> Board<
         { !IS_WHITE_TO_MOVE },
-        { false },
+        false,
         { WHITE_HAS_KING_CASTLE_RIGHTS },
         { WHITE_HAS_QUEEN_CASTLE_RIGHTS },
         { BLACK_HAS_KING_CASTLE_RIGHTS },
@@ -337,11 +337,11 @@ impl<
 
     pub const fn promote_capture<const PROMOTION: NonKingPieceType>(
         self,
-        from: Square,
+        _from: Square,
         to: Square,
     ) -> Board<
         { !IS_WHITE_TO_MOVE },
-        { false },
+        false,
         { WHITE_HAS_KING_CASTLE_RIGHTS },
         { WHITE_HAS_QUEEN_CASTLE_RIGHTS },
         { BLACK_HAS_KING_CASTLE_RIGHTS },
@@ -360,11 +360,11 @@ impl<
         const CASTLE_DIRECTION: CastleDirection,
     >(
         self,
-        from: Square,
+        _from: Square,
         to: Square,
     ) -> Board<
         { !IS_WHITE_TO_MOVE },
-        { false },
+        false,
         { Self::white_king_rook_move_after::<CASTLE_DIRECTION>() },
         { Self::white_queen_rook_move_after::<CASTLE_DIRECTION>() },
         { Self::black_king_rook_move_after::<CASTLE_DIRECTION>() },
@@ -384,7 +384,7 @@ impl<
         to: Square,
     ) -> Board<
         { !IS_WHITE_TO_MOVE },
-        { false },
+        false,
         { Self::white_king_castle_after() },
         { Self::white_queen_castle_after() },
         { Self::black_king_castle_after() },
@@ -423,7 +423,7 @@ impl<
         to: Square,
     ) -> Board<
         { !IS_WHITE_TO_MOVE },
-        { false },
+        false,
         { Self::white_king_rook_move_after::<CASTLE_DIRECTION>() },
         { Self::white_queen_rook_move_after::<CASTLE_DIRECTION>() },
         { Self::black_king_rook_move_after::<CASTLE_DIRECTION>() },
@@ -442,7 +442,7 @@ impl<
         to: Square,
     ) -> Board<
         { !IS_WHITE_TO_MOVE },
-        { true },
+        true,
         { WHITE_HAS_KING_CASTLE_RIGHTS },
         { WHITE_HAS_QUEEN_CASTLE_RIGHTS },
         { BLACK_HAS_KING_CASTLE_RIGHTS },

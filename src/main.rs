@@ -8,8 +8,8 @@
     adt_const_params
 )]
 
-use crate::board::{Board, DEFAULT_BOARD};
-use crate::board_status::DEFAULT_BOARD_STATUS;
+use crate::board::{DEFAULT_BOARD};
+
 use crate::castle_direction::CastleDirection;
 use crate::square::Square::*;
 

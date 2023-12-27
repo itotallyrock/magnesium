@@ -1,4 +1,4 @@
-use crate::bitboard::{Bit, Bitboard, EMPTY_BITBOARD};
+use crate::bitboard::{Bitboard, EMPTY_BITBOARD};
 use crate::castle_direction::CastleDirection;
 use crate::player::Player;
 use crate::square::Square::{A1, A8, H1, H8};
