@@ -35,5 +35,3 @@ impl Square {
         1u64 << (self as u8)
     }
 }
-
-

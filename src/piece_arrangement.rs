@@ -41,7 +41,7 @@ impl PieceArrangement {
     }
 
     pub const fn mask_for_player<const IS_WHITE: bool>(&self) -> Bitboard {
-    self.occupied_by_player[IS_WHITE as usize]
+        self.occupied_by_player[IS_WHITE as usize]
     }
 
     pub const fn mask_for_player_and_piece<
@@ -151,7 +151,6 @@ impl PieceArrangement {
         }
     }
 
-
     pub const fn move_by_squares<const IS_WHITE: bool>(self, from: Square, to: Square) -> Self {
         match self.piece_type_on(from).unwrap() {
             PieceType::Pawn => self.move_piece::<{ IS_WHITE }, { PieceType::Pawn }>(from, to),
@@ -166,10 +165,16 @@ impl PieceArrangement {
     pub const fn remove_by_square<const IS_WHITE: bool>(self, from: Square) -> Self {
         match self.piece_type_on(from).unwrap() {
             PieceType::Pawn => self.remove_piece::<{ IS_WHITE }, { NonKingPieceType::Pawn }>(from),
-            PieceType::Knight => self.remove_piece::<{ IS_WHITE }, { NonKingPieceType::Knight }>(from),
-            PieceType::Bishop => self.remove_piece::<{ IS_WHITE }, { NonKingPieceType::Bishop }>(from),
+            PieceType::Knight => {
+                self.remove_piece::<{ IS_WHITE }, { NonKingPieceType::Knight }>(from)
+            }
+            PieceType::Bishop => {
+                self.remove_piece::<{ IS_WHITE }, { NonKingPieceType::Bishop }>(from)
+            }
             PieceType::Rook => self.remove_piece::<{ IS_WHITE }, { NonKingPieceType::Rook }>(from),
-            PieceType::Queen => self.remove_piece::<{ IS_WHITE }, { NonKingPieceType::Queen }>(from),
+            PieceType::Queen => {
+                self.remove_piece::<{ IS_WHITE }, { NonKingPieceType::Queen }>(from)
+            }
             PieceType::King => panic!("attempting to remove king"),
         }
     }

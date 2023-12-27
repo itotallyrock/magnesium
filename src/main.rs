@@ -5,7 +5,7 @@
     const_mut_refs,
     generic_const_exprs,
     structural_match,
-    adt_const_params,
+    adt_const_params
 )]
 
 use crate::board::{Board, DEFAULT_BOARD};
