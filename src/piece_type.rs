@@ -21,6 +21,15 @@ pub enum NonKingPieceType {
     Queen,
 }
 
+#[repr(u8)]
+#[derive(ConstParamTy, Copy, Clone, Eq, PartialEq, Debug, Ord, PartialOrd)]
+pub enum PromotionPieceType {
+    Knight,
+    Bishop,
+    Rook,
+    Queen,
+}
+
 impl PieceType {
     pub const COUNT: usize = 6;
 }
